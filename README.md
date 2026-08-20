@@ -92,7 +92,8 @@ The logistic regression model provides the strongest risk segmentation in the R 
 The LaTeX report provides a concise technical write-up of the dataset, model design, validation metrics, holdout results, calibration pattern, and modeling limitations:
 
 - `docs/Auto_Insurance_Claim_Probability_Model_Report.tex`
-- `docs/Auto_Insurance_Claim_Probability_Model_Report.pdf`
+
+The compiled PDF can be generated locally from the TeX source.
 
 ## Repository Structure
 
@@ -103,7 +104,6 @@ The LaTeX report provides a concise technical write-up of the dataset, model des
 |-- src/
 |   `-- claim_probability_models.py
 |-- docs/
-|   |-- Auto_Insurance_Claim_Probability_Model_Report.pdf
 |   |-- Auto_Insurance_Claim_Probability_Model_Report.tex
 |   `-- model_walkthrough.md
 |-- figures/
