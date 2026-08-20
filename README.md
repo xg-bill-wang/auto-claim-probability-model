@@ -1,68 +1,63 @@
-# Auto Insurance Claim Probability Modeling
+# Auto Insurance Claim Probability Modeling with Linear Regression
 
-This project models whether an auto insurance policy is likely to generate a claim. It starts with a simple linear regression baseline, expands to a multivariate linear probability model, and then moves to logistic regression, which is a more appropriate probability model for binary claim occurrence. The project includes both Python and R implementations; the R version uses `lm()` and `glm(..., family = binomial)` for a more actuarial-style GLM workflow.
+This repository analyzes policy-level auto insurance claim occurrence using statistical regression models. The response variable is a binary claim indicator, and the analysis studies how well different regression specifications separate higher-risk policies from lower-risk policies.
 
-## Business Question
+The project starts with a one-variable simple linear regression baseline, extends the model into a multivariate linear probability model, and then compares the linear results with logistic regression. This progression keeps the modeling workflow interpretable while showing the practical limitations of applying ordinary least squares to a binary insurance outcome.
 
-Can policy, driver, region, and vehicle attributes help identify policies with above-average claim probability?
+## Dataset
 
-The outcome is `claim_status`, where `1` indicates that a claim occurred and `0` indicates no claim. The portfolio base claim rate in the provided dataset is approximately 6.4%, so model evaluation focuses on probability ranking, calibration, and lift instead of accuracy alone.
+The analysis uses a Kaggle auto insurance claims dataset with policy, customer, regional, and vehicle attributes. The target variable is:
 
-## Why This Is Actuarial
+```text
+claim_status = 1 if a claim occurred
+claim_status = 0 otherwise
+```
 
-Claim occurrence modeling is a core part of P&C insurance pricing and portfolio monitoring. This project frames the task as a frequency model:
+Local dataset summary:
 
-- estimate claim probability at the policy level;
-- compare a simple regression baseline with a more suitable GLM-style model;
-- evaluate whether the model separates high-risk and low-risk policies;
-- interpret results using metrics that matter for insurance, including ROC-AUC, Brier score, calibration, and top-decile lift.
+| Item | Value |
+|---|---:|
+| Policies | 58,592 |
+| Features | 40 predictors + target |
+| Claims | 3,748 |
+| Claim rate | 6.40% |
 
-## Model Progression
-
-1. **Simple linear regression baseline**
-   Uses `subscription_length` only to predict the claim indicator. This is intentionally simple and easy to explain, but it can predict values outside the `[0, 1]` probability range.
-
-2. **Multiple linear probability model**
-   Adds driver, region, and vehicle features using one-hot encoding for categorical variables. This tests whether broader underwriting variables improve segmentation.
-
-3. **Logistic regression**
-   Uses the same feature set as the multivariate linear model, but constrains predicted probabilities to `[0, 1]`. This is closer to the binomial GLM framework commonly used in insurance modeling.
-
-## Data
-
-The raw Kaggle CSV is not committed to this repository. Place it at:
+The raw CSV is not committed to this repository. To reproduce the analysis, place the file at:
 
 ```text
 data/raw/Insurance claims data.csv
 ```
 
-Or provide the file path when running:
+or set:
 
 ```bash
-INSURANCE_CLAIMS_CSV="/path/to/Insurance claims data.csv" python src/claim_probability_models.py
-INSURANCE_CLAIMS_CSV="/path/to/Insurance claims data.csv" Rscript R/claim_probability_models.R
+INSURANCE_CLAIMS_CSV="/path/to/Insurance claims data.csv"
 ```
 
-The dataset used locally contains 58,592 policies, 41 columns, and no missing values in the supplied file.
+## Modeling Approach
+
+The project compares three models on a stratified train/test split.
+
+| Model | Purpose |
+|---|---|
+| Simple linear regression | Uses `subscription_length` as a one-variable baseline. |
+| Multiple linear probability model | Adds customer, vehicle, and regional predictors while keeping a linear structure. |
+| Logistic regression | Uses the same predictors with a binomial link, producing probabilities constrained to `[0, 1]`. |
+
+The first two models are intentionally linear. They make the regression setup transparent and provide a useful benchmark before switching to logistic regression.
+
+## Evaluation Metrics
+
+The dataset is imbalanced: most policies do not have claims. Because of that, accuracy alone is not very informative. The project reports:
+
+- **ROC-AUC** for ranking performance;
+- **Brier score** for probability forecast error;
+- **precision and recall** at the portfolio base-rate threshold;
+- **top-decile lift** to measure claim concentration in the highest predicted-risk group.
 
 ## Results
 
-Public report source:
-
-- `docs/Auto_Insurance_Claim_Probability_Model_Report.tex`
-
-Generated metric outputs:
-
-- `outputs/model_metrics.csv`
-- `outputs/r_model_metrics.csv`
-
-Figures:
-
-![Model performance](figures/model_performance.svg)
-
-![Logistic calibration](figures/logistic_calibration.svg)
-
-Current holdout-set summary:
+Python implementation:
 
 | Model | ROC-AUC | Precision | Recall | Brier Score | Top-Decile Lift |
 |---|---:|---:|---:|---:|---:|
@@ -70,7 +65,7 @@ Current holdout-set summary:
 | Multiple linear probability | 0.602 | 0.082 | 0.634 | 0.0595 | 1.54x |
 | Logistic regression | 0.603 | 0.086 | 0.589 | 0.0595 | 1.55x |
 
-R implementation holdout summary:
+R implementation:
 
 | Model | ROC-AUC | Precision | Recall | Brier Score | Top-Decile Lift |
 |---|---:|---:|---:|---:|---:|
@@ -78,44 +73,56 @@ R implementation holdout summary:
 | Multiple linear probability | 0.606 | 0.082 | 0.639 | 0.0594 | 1.63x |
 | Logistic regression | 0.606 | 0.085 | 0.587 | 0.0594 | 1.68x |
 
-## Interpretation
+The logistic regression model provides the strongest risk segmentation in the R workflow, with a top-decile lift of about 1.68x. This means the highest predicted-risk decile has a materially higher observed claim rate than the overall test portfolio.
 
-Accuracy can be misleading because most policies do not have claims. A model that predicts "no claim" for almost everyone can appear accurate while failing to identify claim-prone policies. This project therefore compares models using:
+![Model performance](figures/model_performance.svg)
 
-- **ROC-AUC**: how well the model ranks claim vs. non-claim policies;
-- **Brier score**: probability forecast error;
-- **Recall and precision**: claim identification tradeoff at the portfolio base-rate threshold;
-- **Top-decile lift**: whether the highest predicted-risk policies have a higher observed claim rate.
+![Logistic calibration](figures/logistic_calibration.svg)
 
-## Reproduce
+## Repository Structure
+
+```text
+.
+|-- R/
+|   `-- claim_probability_models.R
+|-- src/
+|   `-- claim_probability_models.py
+|-- docs/
+|   |-- Auto_Insurance_Claim_Probability_Model_Report.tex
+|   `-- model_walkthrough.md
+|-- figures/
+|   |-- model_performance.svg
+|   `-- logistic_calibration.svg
+|-- outputs/
+|   |-- model_metrics.csv
+|   `-- r_model_metrics.csv
+`-- data/
+    `-- README.md
+```
+
+## Reproducibility
+
+Run the R version:
+
+```bash
+Rscript R/claim_probability_models.R
+```
+
+Run the Python version:
 
 ```bash
 python -m pip install -r requirements.txt
 python src/claim_probability_models.py
-Rscript R/claim_probability_models.R
 ```
 
-The scripts are deterministic and use a stratified train/test split with a fixed random seed. The R script regenerates the R metrics and SVG outputs; the Python script regenerates Python metrics.
-
-To build the public report PDF locally from the LaTeX source:
+Build the report from LaTeX:
 
 ```bash
 latexmk -pdf docs/Auto_Insurance_Claim_Probability_Model_Report.tex
 ```
 
-## Interview Framing
+## Modeling Notes
 
-This project can be described as:
+Linear regression is used here as a transparent statistical baseline for a binary claim indicator. The comparison with logistic regression highlights a common modeling issue: a linear probability model can be interpretable, but it may produce invalid probability estimates outside the `[0, 1]` range. Logistic regression is more appropriate when the response variable is binary.
 
-> I built a policy-level auto insurance claim probability model using a Kaggle dataset. I started with a simple linear regression baseline, then moved to a logistic regression framework to better model binary claim occurrence. I evaluated the models using ROC-AUC, Brier score, calibration by risk decile, and top-decile lift because claim data is imbalanced and accuracy alone can be misleading.
-
-For an R/actuarial version:
-
-> I implemented the same workflow in R using `lm()` for the linear probability baselines and `glm(..., family = binomial)` for the claim occurrence model, connecting the project to the GLM framework commonly used in actuarial pricing.
-
-## Next Steps
-
-- Add regularized logistic regression with cross-validation.
-- Compare against a Poisson or binomial GLM workflow if using actuarial software.
-- Add credibility-style segmentation by region, vehicle age, and subscription length.
-- Extend the project from claim occurrence to claim frequency and severity if claim counts or losses are available.
+The available variables provide moderate segmentation power rather than a highly predictive model. Stronger insurance modeling would typically require exposure information, coverage details, prior claims, loss amounts, and richer territorial or behavioral variables.
