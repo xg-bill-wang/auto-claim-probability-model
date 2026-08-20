@@ -1,0 +1,219 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[margin=0.72in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\definecolor{navy}{HTML}{16324F}
+\definecolor{blue}{HTML}{235789}
+\definecolor{red}{HTML}{C1292E}
+\definecolor{gold}{HTML}{F1B51C}
+\definecolor{green}{HTML}{0B6E4F}
+\definecolor{slate}{HTML}{4B5563}
+\definecolor{light}{HTML}{EEF2F6}
+\definecolor{line}{HTML}{D8DEE6}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navy,
+    urlcolor=blue
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[L]{\small\color{slate}Auto Insurance Claim Probability Modeling}
+\fancyfoot[R]{\small\color{slate}Page \thepage}
+
+\titleformat{\section}
+  {\large\bfseries\color{navy}}
+  {}
+  {0pt}
+  {}
+  [\vspace{-0.25em}{\color{line}\titlerule}]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{navy}}
+  {}
+  {0pt}
+  {}
+
+\setlist[itemize]{leftmargin=1.15em,itemsep=0.15em,topsep=0.2em}
+\renewcommand{\arraystretch}{1.22}
+
+\newcommand{\metriccard}[3]{%
+  \fcolorbox{line}{white}{%
+    \begin{minipage}[t][0.68in][t]{0.215\textwidth}
+      \vspace{0.06in}
+      {\scriptsize\color{slate}\MakeUppercase{#1}}\par
+      {\Large\bfseries\color{navy}#2}\par
+      {\scriptsize\color{slate}#3}
+    \end{minipage}
+  }%
+}
+
+\newcommand{\barcell}[2]{%
+  \begingroup
+  \setlength{\fboxsep}{0pt}%
+  \textcolor{#2}{\rule{#1\linewidth}{0.52em}}%
+  \endgroup
+}
+
+\begin{document}
+\pagecolor{white}
+\color{black}
+
+{\color{navy}\rule{\textwidth}{3pt}}
+\vspace{0.25em}
+
+{\LARGE\bfseries\color{navy} Auto Insurance Claim Probability Modeling}
+
+\vspace{0.25em}
+{\color{slate}A reproducible actuarial analytics project comparing simple linear regression, a multiple linear probability model, and logistic regression for policy-level claim occurrence.}
+
+\vspace{1em}
+\noindent
+\metriccard{Policies}{58,592}{policy-level records}\hfill
+\metriccard{Claim Rate}{6.4\%}{binary occurrence}\hfill
+\metriccard{Best ROC-AUC}{0.606}{R logistic regression}\hfill
+\metriccard{Top-Decile Lift}{1.68x}{highest-risk decile}
+
+\section{Executive Summary}
+
+This project estimates the probability that an auto insurance policy produces a claim. The modeling path deliberately starts with a single-variable linear regression baseline, then expands to a multivariate linear probability model, and finally uses logistic regression as a binomial GLM-style model for binary claim occurrence.
+
+The R implementation achieved a holdout ROC-AUC of 0.606 and a top-decile lift of 1.68x. This indicates modest but useful risk segmentation: the highest predicted-risk decile has meaningfully higher observed claim frequency than the overall portfolio. The result is presented as an actuarial analytics finding, not as an overclaimed high-accuracy machine learning result.
+
+\section{Business Question}
+
+Can policy, driver, regional, and vehicle characteristics identify policies with above-average claim probability? This is a P\&C frequency modeling problem because the response variable is whether a claim occurred, not the dollar amount of loss.
+
+\section{Data Overview}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1.65in}X}
+\toprule
+Item & Value \\
+\midrule
+Observation grain & One row per insurance policy \\
+Rows & 58,592 \\
+Columns & 41 \\
+Claim count & 3,748 \\
+Claim rate & 6.40\% \\
+Target variable & \texttt{claim\_status}: 1 if a claim occurred, 0 otherwise \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.4em}
+{\small\color{slate}The raw Kaggle CSV is not included in the public repository. The repository contains reproducible code, generated outputs, figures, and this report.}
+
+\section{Model Design}
+
+\subsection{1. Simple Linear Regression Baseline}
+
+The first model uses \texttt{subscription\_length} alone to predict the binary claim indicator. It is useful as a transparent benchmark, but it treats a binary outcome as continuous and can be inappropriate as a final probability model.
+
+\subsection{2. Multiple Linear Probability Model}
+
+The second model keeps a linear structure but adds policy, customer, region, and vehicle variables. It tests whether broader underwriting information improves risk segmentation, while still allowing impossible probability predictions below 0 or above 1.
+
+\subsection{3. Logistic Regression}
+
+The final model uses a binomial logistic link:
+
+\[
+\log\left(\frac{p}{1-p}\right) = \beta_0 + \beta_1x_1 + \cdots + \beta_kx_k,
+\]
+
+where \(p\) is the probability that a policy has a claim. This constrains predictions to valid probabilities and connects naturally to the GLM framework commonly used in actuarial pricing and claim occurrence modeling.
+
+\section{Evaluation Approach}
+
+Only about 6.4\% of policies have claims, so accuracy alone can be misleading. A model that predicts ``no claim'' for almost all policies may appear accurate while failing to identify claim-prone risks. This project therefore emphasizes ranking, probability quality, and business segmentation.
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1.35in}X}
+\toprule
+Metric & Purpose \\
+\midrule
+ROC-AUC & Measures how well the model ranks claim vs. non-claim policies. \\
+Brier score & Measures probability forecast error. \\
+Precision and recall & Summarize the classification tradeoff at the base-rate threshold. \\
+Top-decile lift & Compares observed claim frequency in the highest-risk decile to the portfolio average. \\
+\bottomrule
+\end{tabularx}
+
+\section{Holdout Results}
+
+\begin{tabularx}{\textwidth}{Xrrrrr}
+\toprule
+Model & ROC-AUC & Precision & Recall & Brier & Top-Decile Lift \\
+\midrule
+Simple linear baseline & 0.592 & 0.082 & 0.601 & 0.0595 & 1.42x \\
+Multiple linear probability & 0.606 & 0.082 & 0.639 & 0.0594 & 1.63x \\
+Logistic regression & 0.606 & 0.085 & 0.587 & 0.0594 & 1.68x \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Performance Snapshot}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1.4in}X}
+\toprule
+Model & Relative ROC-AUC Visualization \\
+\midrule
+Simple linear baseline & \barcell{0.592}{blue}\quad 0.592 \\
+Multiple linear probability & \barcell{0.606}{red}\quad 0.606 \\
+Logistic regression & \barcell{0.606}{green}\quad 0.606 \\
+\bottomrule
+\end{tabularx}
+
+\section{Calibration by Risk Decile}
+
+The logistic model's predicted probabilities generally increase with observed claim frequency across risk deciles. This is important for actuarial use because a claim model should not only classify policies; it should also produce probabilities that are directionally meaningful.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+Decile & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+\midrule
+Predicted & 2.6\% & 3.6\% & 4.4\% & 5.1\% & 5.9\% & 6.7\% & 7.4\% & 8.3\% & 9.0\% & 10.7\% \\
+Observed & 2.7\% & 4.0\% & 4.9\% & 4.7\% & 6.4\% & 6.7\% & 7.4\% & 9.0\% & 8.5\% & 10.7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\newpage
+\section{Interpretation}
+
+The logistic regression model improves high-risk segmentation relative to the simple baseline. The top-decile lift increases from 1.42x to 1.68x in the R workflow. This means the highest predicted-risk policies show approximately 68\% higher observed claim frequency than the overall test portfolio.
+
+The ROC-AUC remains modest, which is an important professional conclusion rather than a weakness to hide. The available rating variables provide some separation but not a highly predictive model. A production actuarial workflow would benefit from exposure measures, coverage details, prior claims, loss amounts, and stronger territorial or behavioral risk variables.
+
+\section{Public Repository Positioning}
+
+This project demonstrates practical insurance analytics skills:
+
+\begin{itemize}
+  \item clean data handling and train/test validation;
+  \item baseline modeling with simple linear regression;
+  \item GLM-style claim occurrence modeling with R \texttt{glm(..., family = binomial)};
+  \item imbalanced classification evaluation using ROC-AUC, Brier score, precision, recall, and lift;
+  \item actuarial interpretation of model limitations and next steps.
+\end{itemize}
+
+\section{Possible Extensions}
+
+Future work could add regularized GLMs, cross-validation, territorial credibility adjustments, claim frequency models using Poisson GLMs, and severity modeling if claim amount data becomes available.
+
+\end{document}
