@@ -11,6 +11,7 @@
 \usepackage{enumitem}
 \usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
 \usepackage{titlesec}
 \usepackage{parskip}
 
@@ -113,6 +114,51 @@ Logistic regression & 0.606 & 0.085 & 0.587 & 0.0594 & 1.68x \\
 \bottomrule
 \end{tabularx}
 
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{ROC-AUC}\\[-0.2em]
+\begin{tikzpicture}[x=4.0cm,y=0.5cm]
+\draw[->] (0,0) -- (1.08,0);
+\foreach \x/\label in {0/0.58,0.333/0.59,0.667/0.60,1/0.61}
+  \draw (\x,0.06) -- (\x,-0.06) node[below,font=\scriptsize] {\label};
+\foreach \y/\name/\x/\value in {
+  3/Simple linear/0.400/0.592,
+  2/Linear probability/0.867/0.606,
+  1/Logistic/0.867/0.606}
+{
+  \draw[dotted] (0,\y) -- (1,\y);
+  \node[anchor=east,font=\scriptsize] at (-0.05,\y) {\name};
+  \filldraw[black] (\x,\y) circle (1.6pt);
+  \node[anchor=west,font=\scriptsize] at (\x+0.03,\y) {\value};
+}
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{Top-Decile Lift}\\[-0.2em]
+\begin{tikzpicture}[x=4.0cm,y=0.5cm]
+\draw[->] (0,0) -- (1.08,0);
+\foreach \x/\label in {0/1.30,0.444/1.50,0.889/1.70}
+  \draw (\x,0.06) -- (\x,-0.06) node[below,font=\scriptsize] {\label};
+\foreach \y/\name/\x/\value in {
+  3/Simple linear/0.267/1.42x,
+  2/Linear probability/0.733/1.63x,
+  1/Logistic/0.844/1.68x}
+{
+  \draw[dotted] (0,\y) -- (1,\y);
+  \node[anchor=east,font=\scriptsize] at (-0.05,\y) {\name};
+  \filldraw[black] (\x,\y) circle (1.6pt);
+  \node[anchor=west,font=\scriptsize] at (\x+0.03,\y) {\value};
+}
+\end{tikzpicture}
+\end{minipage}
+\caption{Model comparison on holdout data. The multiple linear probability and logistic models are nearly tied on ROC-AUC, while logistic regression produces the highest top-decile lift.}
+\label{fig:model-comparison}
+\end{figure}
+
 The logistic regression model provides the strongest risk segmentation in the R workflow, with a top-decile lift of 1.68x. This means the highest predicted-risk decile has an observed claim frequency about 68\% higher than the overall test portfolio.
 
 \section{Calibration Review}
@@ -130,6 +176,45 @@ Observed & 2.7\% & 4.3\% & 4.8\% & 4.7\% & 6.0\% & 6.4\% & 7.0\% & 8.8\% & 8.5\%
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1.0cm,y=0.24cm]
+\draw[->] (0,0) -- (9.6,0) node[right,font=\small] {Risk decile};
+\draw[->] (0,0) -- (0,12.8) node[above,font=\small] {Claim rate (\%)};
+\foreach \x/\label in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}
+  \draw (\x,0.12) -- (\x,-0.12) node[below,font=\scriptsize] {\label};
+\foreach \y in {0,2,4,6,8,10,12}
+{
+  \draw[dotted] (0,\y) -- (9,\y);
+  \node[anchor=east,font=\scriptsize] at (-0.12,\y) {\y};
+}
+\draw[thick]
+  (0,3.0) -- (1,3.9) -- (2,4.4) -- (3,5.0) -- (4,5.6) -- (5,6.3) -- (6,7.1) -- (7,8.1) -- (8,9.2) -- (9,11.2);
+\foreach \x/\y in {0/3.0,1/3.9,2/4.4,3/5.0,4/5.6,5/6.3,6/7.1,7/8.1,8/9.2,9/11.2}
+  \filldraw[black] (\x,\y) circle (1.4pt);
+\draw[thick,dashed]
+  (0,2.7) -- (1,4.3) -- (2,4.8) -- (3,4.7) -- (4,6.0) -- (5,6.4) -- (6,7.0) -- (7,8.8) -- (8,8.5) -- (9,10.7);
+\foreach \x/\y in {0/2.7,1/4.3,2/4.8,3/4.7,4/6.0,5/6.4,6/7.0,7/8.8,8/8.5,9/10.7}
+  \draw[fill=white,thick] (\x,\y) rectangle ++(0.07,0.28);
+\end{tikzpicture}
+
+\vspace{0.3em}
+\small
+\begin{tikzpicture}[baseline=-0.5ex]
+\draw[thick] (0,0) -- (0.8,0);
+\filldraw[black] (0.4,0) circle (1.4pt);
+\end{tikzpicture}
+Predicted
+\qquad
+\begin{tikzpicture}[baseline=-0.5ex]
+\draw[thick,dashed] (0,0) -- (0.8,0);
+\draw[fill=white,thick] (0.36,-0.08) rectangle ++(0.08,0.16);
+\end{tikzpicture}
+Observed
+\caption{Logistic model calibration by risk decile. Predicted and observed claim rates both increase across the score distribution, indicating useful risk ordering.}
+\label{fig:calibration}
+\end{figure}
 
 \section{Discussion}
 
@@ -149,16 +234,5 @@ The multiple linear probability model performs similarly on ROC-AUC, but it can 
 \section{Reproducibility}
 
 The project includes both R and Python implementations. The R workflow uses \texttt{lm()} for linear models and \texttt{glm(..., family = binomial)} for logistic regression. Generated outputs are stored as CSV files under \texttt{outputs/}, and public figures are stored under \texttt{figures/}.
-
-\begin{tabularx}{\textwidth}{B{1.8in}X}
-\toprule
-Artifact & Location \\
-\midrule
-R model script & \texttt{R/claim\_probability\_models.R} \\
-Python model script & \texttt{src/claim\_probability\_models.py} \\
-Model metrics & \texttt{outputs/model\_metrics.csv}, \texttt{outputs/r\_model\_metrics.csv} \\
-Report source & \texttt{docs/Auto\_Insurance\_Claim\_Probability\_Model\_Report.tex} \\
-\bottomrule
-\end{tabularx}
 
 \end{document}
