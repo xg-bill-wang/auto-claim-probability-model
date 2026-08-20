@@ -47,32 +47,20 @@ The dataset used locally contains 58,592 policies, 41 columns, and no missing va
 
 ## Results
 
-Public report:
+Public report source:
 
-- `docs/Auto_Insurance_Claim_Probability_Model_Report.pdf`
 - `docs/Auto_Insurance_Claim_Probability_Model_Report.tex`
 
-Generated outputs are saved in:
+Generated metric outputs:
 
 - `outputs/model_metrics.csv`
-- `outputs/calibration_by_decile.csv`
-- `outputs/top_logistic_coefficients.csv`
-- `outputs/data_summary.csv`
 - `outputs/r_model_metrics.csv`
-- `outputs/r_calibration_by_decile.csv`
-- `outputs/r_top_logistic_coefficients.csv`
-- `outputs/r_data_summary.csv`
 
 Figures:
 
 ![Model performance](figures/model_performance.svg)
 
 ![Logistic calibration](figures/logistic_calibration.svg)
-
-The R implementation also produces:
-
-- `figures/r_model_performance.svg`
-- `figures/r_logistic_calibration.svg`
 
 Current holdout-set summary:
 
@@ -81,8 +69,6 @@ Current holdout-set summary:
 | Simple linear baseline | 0.592 | 0.083 | 0.622 | 0.0595 | 1.27x |
 | Multiple linear probability | 0.602 | 0.082 | 0.634 | 0.0595 | 1.54x |
 | Logistic regression | 0.603 | 0.086 | 0.589 | 0.0595 | 1.55x |
-
-The logistic model produces valid probabilities between 0 and 1, while the multiple linear probability model produces a small share of impossible values outside that range. The main improvement is not raw accuracy; it is better risk ranking in the highest predicted-risk group.
 
 R implementation holdout summary:
 
@@ -109,7 +95,13 @@ python src/claim_probability_models.py
 Rscript R/claim_probability_models.R
 ```
 
-The script is deterministic and uses a stratified train/test split with a fixed random seed.
+The scripts are deterministic and use a stratified train/test split with a fixed random seed. The R script regenerates the R metrics and SVG outputs; the Python script regenerates Python metrics.
+
+To build the public report PDF locally from the LaTeX source:
+
+```bash
+latexmk -pdf docs/Auto_Insurance_Claim_Probability_Model_Report.tex
+```
 
 ## Interview Framing
 
