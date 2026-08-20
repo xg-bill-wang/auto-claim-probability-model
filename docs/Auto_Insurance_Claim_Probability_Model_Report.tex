@@ -1,106 +1,58 @@
-\documentclass[10pt,letterpaper]{article}
+\documentclass[11pt,letterpaper]{article}
 
-\usepackage[margin=0.78in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage{xcolor}
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{enumitem}
 \usepackage{amsmath}
-\usepackage{hyperref}
-\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
 \usepackage{parskip}
 
-\definecolor{ink}{HTML}{18212F}
-\definecolor{navy}{HTML}{183B5B}
-\definecolor{blue}{HTML}{2F6F9F}
-\definecolor{green}{HTML}{28785E}
-\definecolor{slate}{HTML}{5B6573}
-\definecolor{pale}{HTML}{F4F7FA}
-\definecolor{line}{HTML}{D8DEE6}
-
-\hypersetup{
-    colorlinks=true,
-    linkcolor=navy,
-    urlcolor=blue
-}
-
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0.3pt}
-\fancyfoot[L]{\small\color{slate}Auto Insurance Claim Probability Modeling}
-\fancyfoot[R]{\small\color{slate}\thepage}
+\pagestyle{plain}
 
 \titleformat{\section}
-  {\large\bfseries\color{navy}}
+  {\large\bfseries}
+  {\thesection}
+  {0.7em}
   {}
-  {0pt}
-  {}
-  [\vspace{-0.2em}{\color{line}\titlerule}]
 
 \titleformat{\subsection}
-  {\normalsize\bfseries\color{navy}}
-  {}
-  {0pt}
+  {\normalsize\bfseries}
+  {\thesubsection}
+  {0.7em}
   {}
 
-\setlist[itemize]{leftmargin=1.15em,itemsep=0.12em,topsep=0.2em}
-\renewcommand{\arraystretch}{1.18}
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.1em,topsep=0.2em}
+\renewcommand{\arraystretch}{1.15}
 \setlength{\tabcolsep}{5pt}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{B}[1]{>{\raggedright\arraybackslash\bfseries}p{#1}}
-\color{ink}
-
-\newcommand{\summarybox}[3]{%
-  \fcolorbox{line}{pale}{%
-    \begin{minipage}[t][0.66in][t]{0.215\textwidth}
-      \vspace{0.06in}
-      {\scriptsize\color{slate}\MakeUppercase{#1}}\par
-      {\Large\bfseries\color{navy}#2}\par
-      {\scriptsize\color{slate}#3}
-    \end{minipage}
-  }%
-}
-
-\newcommand{\rocbar}[2]{%
-  \begingroup
-  \setlength{\fboxsep}{0pt}%
-  \textcolor{#2}{\rule{#1\linewidth}{0.5em}}%
-  \endgroup
-}
 
 \begin{document}
 
-{\color{navy}\rule{\textwidth}{2.8pt}}
-\vspace{0.35em}
+\begin{center}
+{\Large\bfseries Auto Insurance Claim Probability Modeling}\\[0.25em]
+{\large A Regression-Based Analysis of Policy-Level Claim Occurrence}
+\end{center}
 
-{\LARGE\bfseries Auto Insurance Claim Probability Modeling}
-
-\vspace{0.2em}
-{\color{slate}A statistical regression workflow for policy-level auto insurance claim occurrence}
-
-\vspace{0.9em}
-\noindent
-\summarybox{Policies}{58,592}{policy records}\hfill
-\summarybox{Claim Rate}{6.40\%}{portfolio base rate}\hfill
-\summarybox{Best ROC-AUC}{0.606}{R logistic model}\hfill
-\summarybox{Top-Decile Lift}{1.68x}{highest-risk decile}
-
-\section{Abstract}
+\vspace{0.8em}
+\section*{Abstract}
 
 This report analyzes auto insurance claim occurrence using a reproducible statistical modeling workflow. The response variable is a binary indicator of whether a policy generated a claim. The analysis begins with simple linear regression, extends to a multiple linear probability model, and compares both linear specifications with logistic regression.
 
-The project is intentionally structured around interpretable models. Linear regression provides a transparent baseline, while logistic regression addresses the probability constraints required for a binary outcome. Holdout results show moderate risk segmentation: the R logistic regression model achieves a ROC-AUC of 0.606 and a top-decile lift of 1.68x.
+The project is structured around interpretable models. Linear regression provides a transparent baseline, while logistic regression addresses the probability constraints required for a binary outcome. Holdout results show moderate risk segmentation: the R logistic regression model achieves a ROC-AUC of 0.606 and a top-decile lift of 1.68x.
 
 \section{Data}
 
-\begin{tabularx}{\textwidth}{>{\bfseries}p{1.65in}X}
+The analysis uses a policy-level auto insurance dataset. The raw CSV is excluded from the public repository, while the modeling code, generated outputs, and report source are included.
+
+\begin{tabularx}{\textwidth}{B{1.8in}X}
 \toprule
 Item & Value \\
 \midrule
@@ -110,25 +62,23 @@ Columns & 41, including the target variable \\
 Claim count & 3,748 \\
 Claim rate & 6.40\% \\
 Target variable & \texttt{claim\_status}: 1 if a claim occurred, 0 otherwise \\
-Source handling & Raw Kaggle CSV excluded from the public repository; generated outputs and code are included \\
 \bottomrule
 \end{tabularx}
 
 \section{Modeling Framework}
 
-The modeling sequence follows a baseline-to-GLM progression commonly used in insurance analytics: start with an interpretable benchmark, add rating-style features, then use a model designed for binary outcomes.
+The modeling sequence follows a baseline-to-GLM progression: start with an interpretable benchmark, add rating-style features, then use a model designed for binary outcomes.
 
-\begin{tabularx}{\textwidth}{B{1.85in}L{1.75in}X}
+\begin{tabularx}{\textwidth}{B{1.8in}L{1.9in}X}
 \toprule
 Component & Method & Role in the analysis \\
 \midrule
-Baseline & Simple linear regression & Uses \texttt{subscription\_length} as a one-variable reference model. \\
+Baseline & Simple linear regression & Uses subscription length as a one-variable reference model. \\
 Linear probability model & Multiple linear regression & Adds policy, customer, region, and vehicle predictors while preserving a linear structure. \\
 Binary response model & Logistic regression & Uses a binomial link so fitted probabilities remain within the valid \([0,1]\) interval. \\
 \bottomrule
 \end{tabularx}
 
-\vspace{0.35em}
 For the logistic model, the claim probability \(p_i\) for policy \(i\) is modeled as:
 
 \[
@@ -140,7 +90,7 @@ For the logistic model, the claim probability \(p_i\) for policy \(i\) is modele
 
 The portfolio is imbalanced because only 6.40\% of policies have a claim. Accuracy can therefore be misleading: a model can appear accurate by predicting no claim for almost every policy. The validation framework emphasizes ranking quality, probability error, and concentration of observed claims in the highest predicted-risk group.
 
-\begin{tabularx}{\textwidth}{>{\bfseries}p{1.45in}X}
+\begin{tabularx}{\textwidth}{B{1.55in}X}
 \toprule
 Metric & Interpretation \\
 \midrule
@@ -163,16 +113,7 @@ Logistic regression & 0.606 & 0.085 & 0.587 & 0.0594 & 1.68x \\
 \bottomrule
 \end{tabularx}
 
-\vspace{0.45em}
-\begin{tabularx}{\textwidth}{B{2.15in}Xr}
-\toprule
-Model & Relative ROC-AUC & ROC-AUC \\
-\midrule
-Simple linear baseline & \rocbar{0.592}{blue} & 0.592 \\
-Multiple linear probability model & \rocbar{0.606}{green} & 0.606 \\
-Logistic regression & \rocbar{0.606}{navy} & 0.606 \\
-\bottomrule
-\end{tabularx}
+The logistic regression model provides the strongest risk segmentation in the R workflow, with a top-decile lift of 1.68x. This means the highest predicted-risk decile has an observed claim frequency about 68\% higher than the overall test portfolio.
 
 \section{Calibration Review}
 
@@ -192,7 +133,7 @@ Observed & 2.7\% & 4.3\% & 4.8\% & 4.7\% & 6.0\% & 6.4\% & 7.0\% & 8.8\% & 8.5\%
 
 \section{Discussion}
 
-The main finding is not high predictive accuracy; it is moderate but measurable risk segmentation. Moving from the simple linear baseline to the logistic model raises top-decile lift from 1.42x to 1.68x. In practical terms, the highest predicted-risk decile contains policies with substantially higher observed claim frequency than the average test portfolio.
+The main finding is moderate but measurable risk segmentation, not high predictive accuracy. Moving from the simple linear baseline to the logistic model raises top-decile lift from 1.42x to 1.68x. In practical terms, the highest predicted-risk decile contains policies with substantially higher observed claim frequency than the average test portfolio.
 
 The multiple linear probability model performs similarly on ROC-AUC, but it can produce invalid probabilities outside the \([0,1]\) range. Logistic regression is therefore the cleaner probability model for this binary response setting, even when the ranking performance improvement is modest.
 
@@ -209,7 +150,7 @@ The multiple linear probability model performs similarly on ROC-AUC, but it can 
 
 The project includes both R and Python implementations. The R workflow uses \texttt{lm()} for linear models and \texttt{glm(..., family = binomial)} for logistic regression. Generated outputs are stored as CSV files under \texttt{outputs/}, and public figures are stored under \texttt{figures/}.
 
-\begin{tabularx}{\textwidth}{>{\bfseries}p{1.7in}X}
+\begin{tabularx}{\textwidth}{B{1.8in}X}
 \toprule
 Artifact & Location \\
 \midrule
