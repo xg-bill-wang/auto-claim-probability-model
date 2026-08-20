@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="460" viewBox="0 0 820 460">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="38" y="38" font-family="Arial" font-size="24" font-weight="700" fill="#111827">Logistic regression calibration by risk decile</text>
+<text x="38" y="61" font-family="Arial" font-size="13" fill="#4b5563">Predicted probabilities should move with observed claim rates.</text>
+<line x1="72" y1="390.0" x2="780" y2="390.0" stroke="#e5e7eb"/>
+<text x="30" y="394.0" font-family="Arial" font-size="12" fill="#6b7280">0.0%</text>
+<line x1="72" y1="326.0" x2="780" y2="326.0" stroke="#e5e7eb"/>
+<text x="30" y="330.0" font-family="Arial" font-size="12" fill="#6b7280">2.3%</text>
+<line x1="72" y1="262.0" x2="780" y2="262.0" stroke="#e5e7eb"/>
+<text x="30" y="266.0" font-family="Arial" font-size="12" fill="#6b7280">4.6%</text>
+<line x1="72" y1="198.0" x2="780" y2="198.0" stroke="#e5e7eb"/>
+<text x="30" y="202.0" font-family="Arial" font-size="12" fill="#6b7280">6.8%</text>
+<line x1="72" y1="134.0" x2="780" y2="134.0" stroke="#e5e7eb"/>
+<text x="30" y="138.0" font-family="Arial" font-size="12" fill="#6b7280">9.1%</text>
+<line x1="72" y1="70.0" x2="780" y2="70.0" stroke="#e5e7eb"/>
+<text x="30" y="74.0" font-family="Arial" font-size="12" fill="#6b7280">11.4%</text>
+<polyline fill="none" stroke="#235789" stroke-width="3" points="72.0,307.0 150.7,282.1 229.3,265.8 308.0,249.3 386.7,232.6 465.3,212.8 544.0,188.8 622.7,162.7 701.3,129.7 780.0,70.0"/>
+<polyline fill="none" stroke="#c1292e" stroke-width="3" points="72.0,309.5 150.7,253.9 229.3,271.1 308.0,255.7 386.7,209.8 465.3,215.5 544.0,182.8 622.7,154.2 701.3,138.8 780.0,112.0"/>
+<circle cx="72.0" cy="307.0" r="4" fill="#235789"/>
+<circle cx="72.0" cy="309.5" r="4" fill="#c1292e"/>
+<text x="72.0" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">1</text>
+<circle cx="150.7" cy="282.1" r="4" fill="#235789"/>
+<circle cx="150.7" cy="253.9" r="4" fill="#c1292e"/>
+<text x="150.7" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">2</text>
+<circle cx="229.3" cy="265.8" r="4" fill="#235789"/>
+<circle cx="229.3" cy="271.1" r="4" fill="#c1292e"/>
+<text x="229.3" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">3</text>
+<circle cx="308.0" cy="249.3" r="4" fill="#235789"/>
+<circle cx="308.0" cy="255.7" r="4" fill="#c1292e"/>
+<text x="308.0" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">4</text>
+<circle cx="386.7" cy="232.6" r="4" fill="#235789"/>
+<circle cx="386.7" cy="209.8" r="4" fill="#c1292e"/>
+<text x="386.7" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">5</text>
+<circle cx="465.3" cy="212.8" r="4" fill="#235789"/>
+<circle cx="465.3" cy="215.5" r="4" fill="#c1292e"/>
+<text x="465.3" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">6</text>
+<circle cx="544.0" cy="188.8" r="4" fill="#235789"/>
+<circle cx="544.0" cy="182.8" r="4" fill="#c1292e"/>
+<text x="544.0" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">7</text>
+<circle cx="622.7" cy="162.7" r="4" fill="#235789"/>
+<circle cx="622.7" cy="154.2" r="4" fill="#c1292e"/>
+<text x="622.7" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">8</text>
+<circle cx="701.3" cy="129.7" r="4" fill="#235789"/>
+<circle cx="701.3" cy="138.8" r="4" fill="#c1292e"/>
+<text x="701.3" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">9</text>
+<circle cx="780.0" cy="70.0" r="4" fill="#235789"/>
+<circle cx="780.0" cy="112.0" r="4" fill="#c1292e"/>
+<text x="780.0" y="418" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">10</text>
+<text x="358" y="430" font-family="Arial" font-size="13" fill="#374151">Risk decile, low to high</text>
+<rect x="600" y="84" width="14" height="14" fill="#235789"/><text x="622" y="96" font-family="Arial" font-size="13" fill="#111827">Predicted</text>
+<rect x="600" y="106" width="14" height="14" fill="#c1292e"/><text x="622" y="118" font-family="Arial" font-size="13" fill="#111827">Observed</text>
+</svg>
